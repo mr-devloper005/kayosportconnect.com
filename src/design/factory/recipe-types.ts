@@ -20,6 +20,8 @@ export type SiteRecipe = {
   footerTemplate?: FooterLayoutKey
   motionPack?: MotionPackKey
   primaryTask: TaskKey
+  /** Optional: shown after primary in nav / discovery when set */
+  secondaryTask?: TaskKey
   enabledTasks: TaskKey[]
   taskTemplates: Partial<Record<TaskKey, TaskLayoutKey>>
   manualOverrides: {
@@ -39,7 +41,7 @@ export type ThemePackDefinition = {
   key: ThemePackKey
   label: string
   productFamily: ProductFamily
-  brandPack: 'editorial-luxe' | 'directory-clean' | 'studio-dark' | 'market-utility'
+  brandPack: 'editorial-luxe' | 'directory-clean' | 'studio-dark' | 'market-utility' | 'gallery-cream'
   navbar: NavbarLayoutKey
   footer: FooterLayoutKey
   homeLayout: HomeLayoutKey

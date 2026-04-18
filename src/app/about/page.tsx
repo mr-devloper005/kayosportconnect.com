@@ -8,22 +8,22 @@ import { mockTeamMembers } from "@/data/mock-data";
 import { SITE_CONFIG } from "@/lib/site-config";
 
 const highlights = [
-  { label: "Creators onboarded", value: "12k+" },
-  { label: "Bookmarks shared", value: "180k" },
-  { label: "Listings published", value: "8.6k" },
+  { label: "Galleries published (demo)", value: "2.4k" },
+  { label: "Articles filed (demo)", value: "860" },
+  { label: "Contributors (demo)", value: "140" },
 ];
 
 const values = [
-  { title: "Curated by people", description: "We believe trusted recommendations beat endless feeds." },
-  { title: "Designed for focus", description: "Clear, calm UI helps you find the next best resource fast." },
-  { title: "Built to share", description: "Collections make collaboration and knowledge flow effortless." },
+  { title: "Sport first", description: "Imagery and writing stay tied to match day, training, and culture—not generic feeds." },
+  { title: "Room to read", description: "Articles get typography and pacing that respect long-form sport storytelling." },
+  { title: "Built for photographers", description: "Galleries prioritise frames, colour, and light so your work leads every surface." },
 ];
 
 export default function AboutPage() {
   return (
     <PageShell
       title={`About ${SITE_CONFIG.name}`}
-      description={`${SITE_CONFIG.name} is a modern platform for creators, communities, and curated business discovery.`}
+      description={`${SITE_CONFIG.name} publishes sport photography and long-form writing—galleries and articles in one editorial studio.`}
       actions={
         <>
           <Button variant="outline" asChild>
@@ -39,12 +39,12 @@ export default function AboutPage() {
         <Card className="border-border bg-card">
           <CardContent className="space-y-4 p-6">
             <Badge variant="secondary">Our Story</Badge>
-            <h2 className="text-2xl font-semibold text-foreground">
-              A single home for knowledge, discovery, and community.
-            </h2>
+            <h2 className="text-2xl font-semibold text-foreground">An editorial home for sport frames and filed stories.</h2>
             <p className="text-sm text-muted-foreground">
-              {SITE_CONFIG.name} brings together publishing, listings, and social bookmarking so teams can move faster
-              and keep their best resources close.
+              {SITE_CONFIG.name} started as a simple idea: photographers and writers should not need two disconnected sites
+              to share an album from the boundary and the essay that contextualises it. Today we host image-led posts and
+              articles with the same calm visual language—demo figures beside this copy illustrate how a live newsroom
+              dashboard could look.
             </p>
             <div className="grid gap-4 sm:grid-cols-3">
               {highlights.map((item) => (
