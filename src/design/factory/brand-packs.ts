@@ -37,4 +37,13 @@ export const BRAND_PACKS: Record<BrandPack['key'], BrandPack> = {
     surfaceClassName: 'factory-surface-market',
     accentClassName: 'factory-accent-market',
   },
+  'gallery-cream': {
+    key: 'gallery-cream',
+    displayName: 'Gallery Cream',
+    bodyClassName: 'factory-brand-gallery-cream',
+    fontClassName: 'factory-font-gallery-cream',
+    paletteClassName: 'factory-palette-gallery-cream',
+    surfaceClassName: 'factory-surface-gallery-cream',
+    accentClassName: 'factory-accent-gallery-cream',
+  },
 }

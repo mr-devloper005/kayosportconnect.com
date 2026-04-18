@@ -6,7 +6,22 @@ import { getFactoryState } from '@/design/factory/get-factory-state'
 import { getProductKind } from '@/design/factory/get-product-kind'
 import { LOGIN_PAGE_OVERRIDE_ENABLED, LoginPageOverride } from '@/overrides/login-page'
 
-function getLoginConfig(kind: ReturnType<typeof getProductKind>) {
+type LoginConfig = {
+  shell: string
+  panel: string
+  side: string
+  muted: string
+  action: string
+  icon: typeof Building2
+  title: string
+  body: string
+  bullets: string[]
+  signInCta?: string
+  formHint?: string
+  submitLabel?: string
+}
+
+function getLoginConfig(kind: ReturnType<typeof getProductKind>): LoginConfig {
   if (kind === 'directory') {
     return {
       shell: 'bg-[#f8fbff] text-slate-950',
@@ -17,6 +32,7 @@ function getLoginConfig(kind: ReturnType<typeof getProductKind>) {
       icon: Building2,
       title: 'Access your business dashboard',
       body: 'Manage listings, verification details, contact info, and local discovery surfaces from one place.',
+      bullets: ['Cleaner product-specific workflows', 'Palette and layout matched to the site family', 'Fewer repeated admin patterns'],
     }
   }
   if (kind === 'editorial') {
@@ -29,6 +45,7 @@ function getLoginConfig(kind: ReturnType<typeof getProductKind>) {
       icon: FileText,
       title: 'Sign in to your publication workspace',
       body: 'Draft, review, and publish long-form work with the calmer reading system intact.',
+      bullets: ['Cleaner product-specific workflows', 'Palette and layout matched to the site family', 'Fewer repeated admin patterns'],
     }
   }
   if (kind === 'visual') {
@@ -39,8 +56,16 @@ function getLoginConfig(kind: ReturnType<typeof getProductKind>) {
       muted: 'text-slate-300',
       action: 'bg-[#8df0c8] text-[#07111f] hover:bg-[#77dfb8]',
       icon: ImageIcon,
-      title: 'Enter the creator workspace',
-      body: 'Open your visual feed, creator profile, and publishing tools without dropping into a generic admin shell.',
+      title: 'Sign in to your studio',
+      body: 'Use the email and password you registered with. After sign-in you can upload sport galleries, file articles, and manage your profile—same calm UI as the public site.',
+      signInCta: 'Your session stays on this domain; use “Forgot password?” if you need a reset.',
+      formHint: 'Sign in with the email and password you used at registration.',
+      submitLabel: 'Sign in to continue',
+      bullets: [
+        'One account for image posts and long-form sport writing',
+        'No separate “admin skin”—tools match the gallery & editorial look',
+        'New here? Create an account from the link under the form',
+      ],
     }
   }
   return {
@@ -52,6 +77,7 @@ function getLoginConfig(kind: ReturnType<typeof getProductKind>) {
     icon: Bookmark,
     title: 'Open your curated collections',
     body: 'Manage saved resources, collection notes, and curator identity from a calmer workspace.',
+    bullets: ['Cleaner product-specific workflows', 'Palette and layout matched to the site family', 'Fewer repeated admin patterns'],
   }
 }
 
@@ -74,19 +100,27 @@ export default function LoginPage() {
             <Icon className="h-8 w-8" />
             <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em]">{config.title}</h1>
             <p className={`mt-5 text-sm leading-8 ${config.muted}`}>{config.body}</p>
+            {config.signInCta ? (
+              <p className={`mt-4 text-xs leading-relaxed opacity-90 ${config.muted}`}>{config.signInCta}</p>
+            ) : null}
             <div className="mt-8 grid gap-4">
-              {['Cleaner product-specific workflows', 'Palette and layout matched to the site family', 'Fewer repeated admin patterns'].map((item) => (
-                <div key={item} className="rounded-[1.5rem] border border-current/10 px-4 py-4 text-sm">{item}</div>
+              {config.bullets.map((item) => (
+                <div key={item} className="rounded-[1.5rem] border border-current/10 px-4 py-4 text-sm">
+                  {item}
+                </div>
               ))}
             </div>
           </div>
 
           <div className={`rounded-[2rem] p-8 ${config.panel}`}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Welcome back</p>
+            {config.formHint ? <p className={`mt-2 text-sm ${config.muted}`}>{config.formHint}</p> : null}
             <form className="mt-6 grid gap-4">
               <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Email address" />
               <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Password" type="password" />
-              <button type="submit" className={`inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold ${config.action}`}>Sign in</button>
+              <button type="submit" className={`inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold ${config.action}`}>
+                {config.submitLabel || 'Sign in'}
+              </button>
             </form>
             <div className={`mt-6 flex items-center justify-between text-sm ${config.muted}`}>
               <Link href="/forgot-password" className="hover:underline">Forgot password?</Link>

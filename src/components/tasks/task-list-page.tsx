@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ArrowRight, Building2, FileText, Image as ImageIcon, LayoutGrid, Tag, User } from 'lucide-react'
+import { ContentImage } from '@/components/shared/content-image'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { TaskListClient } from '@/components/tasks/task-list-client'
@@ -10,6 +11,20 @@ import { CATEGORY_OPTIONS, normalizeCategory } from '@/lib/categories'
 import { taskIntroCopy } from '@/config/site.content'
 import { getFactoryState } from '@/design/factory/get-factory-state'
 import { TASK_LIST_PAGE_OVERRIDE_ENABLED, TaskListPageOverride } from '@/overrides/task-list-page'
+
+/** Sample frames for image task list heroes (Picsum seeds stay stable). */
+const imageWallSamples = [
+  'https://picsum.photos/seed/ksc-wall-main/960/1080',
+  'https://picsum.photos/seed/ksc-wall-a/520/400',
+  'https://picsum.photos/seed/ksc-wall-b/520/400',
+  'https://picsum.photos/seed/ksc-wall-strip/920/380',
+] as const
+
+const imageHeroDarkSamples = [
+  'https://picsum.photos/seed/ksc-hero-dark-1/720/640',
+  'https://picsum.photos/seed/ksc-hero-dark-2/720/640',
+  'https://picsum.photos/seed/ksc-hero-dark-3/1200/480',
+] as const
 
 const taskIcons: Record<TaskKey, any> = {
   listing: Building2,
@@ -28,9 +43,11 @@ const variantShells = {
   'listing-directory': 'bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.08),transparent_24%),linear-gradient(180deg,#f8fbff_0%,#ffffff_100%)]',
   'listing-showcase': 'bg-[linear-gradient(180deg,#ffffff_0%,#f4f9ff_100%)]',
   'article-editorial': 'bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.08),transparent_20%),linear-gradient(180deg,#fff8ef_0%,#ffffff_100%)]',
+  'article-editorial-cream': 'bg-[linear-gradient(180deg,#ffffff_0%,#f7f8f0_42%,#eef6fc_100%)] text-[#355872]',
   'article-journal': 'bg-[linear-gradient(180deg,#fffdf9_0%,#f7f1ea_100%)]',
   'image-masonry': 'bg-[linear-gradient(180deg,#09101d_0%,#111c2f_100%)] text-white',
   'image-portfolio': 'bg-[linear-gradient(180deg,#07111f_0%,#13203a_100%)] text-white',
+  'image-portfolio-cream': 'bg-[linear-gradient(180deg,#fdfefd_0%,#f0f6fb_55%,#f7f8f0_100%)] text-[#355872]',
   'profile-creator': 'bg-[linear-gradient(180deg,#0a1120_0%,#101c34_100%)] text-white',
   'profile-business': 'bg-[linear-gradient(180deg,#f6fbff_0%,#ffffff_100%)]',
   'classified-bulletin': 'bg-[linear-gradient(180deg,#edf3e4_0%,#ffffff_100%)]',
@@ -57,10 +74,18 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
   }))
   const { recipe } = getFactoryState()
   const layoutKey = recipe.taskLayouts[task as keyof typeof recipe.taskLayouts] || `${task}-${task === 'listing' ? 'directory' : 'editorial'}`
-  const shellClass = variantShells[layoutKey as keyof typeof variantShells] || 'bg-background'
+  const galleryCream = recipe.brandPack === 'gallery-cream'
+  const resolvedLayoutKey =
+    galleryCream && layoutKey === 'image-portfolio'
+      ? 'image-portfolio-cream'
+      : galleryCream && layoutKey === 'article-editorial'
+        ? 'article-editorial-cream'
+        : layoutKey
+  const shellClass = variantShells[resolvedLayoutKey as keyof typeof variantShells] || 'bg-background'
   const Icon = taskIcons[task] || LayoutGrid
 
-  const isDark = ['image-masonry', 'image-portfolio', 'profile-creator'].includes(layoutKey)
+  const isDark =
+    !galleryCream && ['image-masonry', 'image-portfolio', 'profile-creator'].includes(layoutKey)
   const ui = isDark
     ? {
         muted: 'text-slate-300',
@@ -69,6 +94,14 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
         input: 'border-white/10 bg-white/6 text-white',
         button: 'bg-white text-slate-950 hover:bg-slate-200',
       }
+    : galleryCream && (layoutKey === 'image-portfolio' || layoutKey === 'article-editorial')
+      ? {
+          muted: 'text-[rgb(53_88_114/0.72)]',
+          panel: 'border border-[rgb(53_88_114/0.1)] bg-white shadow-[0_18px_44px_rgb(53_88_114/0.06)]',
+          soft: 'border border-[rgb(53_88_114/0.1)] bg-[rgb(247_248_240/0.85)]',
+          input: 'border border-[rgb(53_88_114/0.15)] bg-white text-[#355872]',
+          button: 'bg-[#355872] text-white hover:bg-[rgb(45_72_94)]',
+        }
     : layoutKey.startsWith('article') || layoutKey.startsWith('sbm')
       ? {
           muted: 'text-[#72594a]',
@@ -146,7 +179,29 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           </section>
         ) : null}
 
-        {layoutKey === 'article-editorial' || layoutKey === 'article-journal' ? (
+        {galleryCream && layoutKey === 'article-editorial' ? (
+          <section className="mb-16">
+            <div className="relative border-l-4 border-[#7aaace] pl-6 sm:pl-8">
+              <p className={`text-[11px] font-semibold uppercase tracking-[0.34em] ${ui.muted}`}>{taskConfig?.label || task}</p>
+              <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-[-0.04em] text-foreground sm:text-5xl">{taskConfig?.description || 'Latest posts'}</h1>
+              <p className={`mt-6 max-w-2xl text-base leading-relaxed ${ui.muted}`}>
+                Editorial pages here favor wide measure, serif headlines, and quiet margins so stories read like a magazine instead of a dashboard feed.
+              </p>
+            </div>
+            <form className="mt-10 flex max-w-xl flex-col gap-3 sm:flex-row sm:items-center" action={taskConfig?.route || '#'}>
+              <label className={`sr-only`} htmlFor="article-category">Category</label>
+              <select id="article-category" name="category" defaultValue={normalizedCategory} className={`h-12 flex-1 rounded-md px-3 text-sm font-medium ${ui.input}`}>
+                <option value="all">All categories</option>
+                {CATEGORY_OPTIONS.map((item) => (
+                  <option key={item.slug} value={item.slug}>{item.name}</option>
+                ))}
+              </select>
+              <button type="submit" className={`h-12 shrink-0 rounded-md px-6 text-sm font-semibold ${ui.button}`}>Filter</button>
+            </form>
+          </section>
+        ) : null}
+
+        {(layoutKey === 'article-journal') || (!galleryCream && layoutKey === 'article-editorial') ? (
           <section className="mb-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
             <div>
               <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
@@ -169,7 +224,62 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           </section>
         ) : null}
 
-        {layoutKey === 'image-masonry' || layoutKey === 'image-portfolio' ? (
+        {galleryCream && layoutKey === 'image-portfolio' ? (
+          <section className="mb-16 grid gap-8 lg:grid-cols-[minmax(0,0.42fr)_1fr] lg:items-end">
+            <div className="space-y-4">
+              <div className={`inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] ${ui.soft}`}>
+                <Icon className="h-3.5 w-3.5" />
+                Wall
+              </div>
+              <h1 className="text-[clamp(2.1rem,4vw,3.25rem)] font-semibold leading-[1.05] tracking-[-0.045em] text-foreground [writing-mode:horizontal-tb]">
+                {taskConfig?.description || 'Latest posts'}
+              </h1>
+              <p className={`max-w-sm text-sm leading-relaxed ${ui.muted}`}>
+                A tighter grid below keeps every upload legible while this header stays airy and photographic.
+              </p>
+            </div>
+            <div className="grid grid-cols-4 gap-2 sm:gap-3">
+              <div className={`relative col-span-2 row-span-2 min-h-[200px] overflow-hidden rounded-xl sm:min-h-[220px] sm:rounded-2xl ${ui.panel}`}>
+                <ContentImage
+                  src={imageWallSamples[0]}
+                  alt="Sample sport photography — main frame"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width:1024px) 50vw, 28vw"
+                />
+              </div>
+              <div className={`relative min-h-[92px] overflow-hidden rounded-lg sm:min-h-[96px] sm:rounded-xl ${ui.soft}`}>
+                <ContentImage
+                  src={imageWallSamples[1]}
+                  alt="Sample sport photography"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width:1024px) 25vw, 14vw"
+                />
+              </div>
+              <div className={`relative min-h-[92px] overflow-hidden rounded-lg sm:min-h-[96px] sm:rounded-xl ${ui.panel}`}>
+                <ContentImage
+                  src={imageWallSamples[2]}
+                  alt="Sample sport photography"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width:1024px) 25vw, 14vw"
+                />
+              </div>
+              <div className={`relative col-span-2 min-h-[72px] overflow-hidden rounded-lg sm:min-h-[88px] sm:rounded-xl ${ui.soft}`}>
+                <ContentImage
+                  src={imageWallSamples[3]}
+                  alt="Sample sport photography — wide frame"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width:1024px) 50vw, 30vw"
+                />
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {(layoutKey === 'image-masonry') || (!galleryCream && layoutKey === 'image-portfolio') ? (
           <section className="mb-12 grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
             <div>
               <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] ${ui.soft}`}>
@@ -179,9 +289,33 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
               <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>This surface leans into stronger imagery, larger modules, and more expressive spacing so visual content feels materially different from reading and directory pages.</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className={`min-h-[220px] rounded-[2rem] ${ui.panel}`} />
-              <div className={`min-h-[220px] rounded-[2rem] ${ui.soft}`} />
-              <div className={`col-span-2 min-h-[120px] rounded-[2rem] ${ui.panel}`} />
+              <div className={`relative min-h-[220px] overflow-hidden rounded-[2rem] ${ui.panel}`}>
+                <ContentImage
+                  src={imageHeroDarkSamples[0]}
+                  alt="Sample sport photography"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width:1024px) 45vw, 24vw"
+                />
+              </div>
+              <div className={`relative min-h-[220px] overflow-hidden rounded-[2rem] ${ui.soft}`}>
+                <ContentImage
+                  src={imageHeroDarkSamples[1]}
+                  alt="Sample sport photography"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width:1024px) 45vw, 24vw"
+                />
+              </div>
+              <div className={`relative col-span-2 min-h-[120px] overflow-hidden rounded-[2rem] ${ui.panel}`}>
+                <ContentImage
+                  src={imageHeroDarkSamples[2]}
+                  alt="Sample sport photography — panorama"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width:1024px) 90vw, 50vw"
+                />
+              </div>
             </div>
           </section>
         ) : null}
@@ -243,11 +377,15 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
             {intro.paragraphs.map((paragraph) => (
               <p key={paragraph.slice(0, 40)} className={`mt-4 text-sm leading-7 ${ui.muted}`}>{paragraph}</p>
             ))}
-            <div className="mt-4 flex flex-wrap gap-4 text-sm">
-              {intro.links.map((link) => (
-                <a key={link.href} href={link.href} className="font-semibold text-foreground hover:underline">{link.label}</a>
-              ))}
-            </div>
+            {intro.links.length > 0 ? (
+              <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                {intro.links.map((link) => (
+                  <a key={link.href} href={link.href} className="font-semibold text-foreground hover:underline">
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </section>
         ) : null}
 
