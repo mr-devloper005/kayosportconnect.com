@@ -62,16 +62,16 @@ const cardStyles = {
     badge: 'bg-slate-950 text-white',
   },
   'editorial-feature': {
-    frame: 'rounded-[1.8rem] border border-[rgba(125,83,45,0.12)] bg-[#fffaf3] shadow-[0_18px_55px_rgba(89,52,24,0.1)] hover:-translate-y-1 hover:shadow-[0_26px_75px_rgba(89,52,24,0.14)]',
-    muted: 'text-[#71584b]',
-    title: 'text-[#2b1d17]',
-    badge: 'bg-[#2b1d17] text-[#fff3df]',
+    frame: 'rounded-2xl border border-[rgb(53_88_114/0.1)] bg-[linear-gradient(180deg,#ffffff_0%,#f7f8f0_100%)] shadow-[0_18px_48px_rgb(53_88_114/0.07)] hover:-translate-y-0.5 hover:shadow-[0_22px_52px_rgb(53_88_114/0.1)]',
+    muted: 'text-[rgb(53_88_114/0.72)]',
+    title: 'text-[#355872]',
+    badge: 'border border-[rgb(53_88_114/0.12)] bg-[rgb(156_213_255/0.35)] text-[#355872]',
   },
   'studio-panel': {
-    frame: 'rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(7,17,31,0.96),rgba(12,23,43,0.96))] text-white shadow-[0_24px_80px_rgba(15,23,42,0.35)] hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(15,23,42,0.42)]',
-    muted: 'text-slate-300',
-    title: 'text-white',
-    badge: 'bg-[#8df0c8] text-[#07111f]',
+    frame: 'rounded-2xl border border-[rgb(53_88_114/0.1)] bg-white text-[#355872] shadow-[0_20px_55px_rgb(53_88_114/0.08)] hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgb(53_88_114/0.11)]',
+    muted: 'text-[rgb(53_88_114/0.7)]',
+    title: 'text-[#355872]',
+    badge: 'bg-[#355872] text-white',
   },
   'catalog-grid': {
     frame: 'rounded-[1.8rem] border border-[rgba(67,78,41,0.14)] bg-[#f8faf1] shadow-[0_18px_58px_rgba(55,65,31,0.1)] hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(55,65,31,0.14)]',
@@ -185,9 +185,9 @@ export function TaskPostCard({
 
   return (
     <Link href={href} className={`group flex h-full flex-col overflow-hidden transition duration-300 ${visualVariant.frame}`}>
-      <div className={`relative ${imageAspect} overflow-hidden bg-[#ede2dc]`}>
+      <div className={`relative ${imageAspect} overflow-hidden bg-[rgb(122_170_206/0.2)]`}>
         <ContentImage src={image} alt={altText} fill sizes={imageSizes} quality={75} className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" intrinsicWidth={960} intrinsicHeight={720} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[rgb(53_88_114/0.35)] via-transparent to-transparent opacity-80" />
         <span className={`absolute left-4 top-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${visualVariant.badge}`}>
           <Tag className="h-3.5 w-3.5" />
           {category}

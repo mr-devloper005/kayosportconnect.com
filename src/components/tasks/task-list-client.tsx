@@ -54,14 +54,22 @@ export function TaskListClient({ task, initialPosts, category }: Props) {
 
   if (!merged.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
-        No posts yet for this section.
+      <div className="rounded-2xl border border-dashed border-[rgb(53_88_114/0.22)] bg-[rgb(255_255_255/0.65)] px-6 py-14 text-center">
+        <p className="font-medium text-[#355872]">Nothing published here yet.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Check back soon or open search to explore other areas of the site.</p>
       </div>
     );
   }
 
+  const gridClass =
+    task === 'article'
+      ? 'grid gap-8 sm:grid-cols-2 xl:grid-cols-3'
+      : task === 'image'
+        ? 'grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
+        : 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4'
+
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className={gridClass}>
       {merged.map((post) => {
         const localOnly = (post as any).localOnly;
         const href = localOnly

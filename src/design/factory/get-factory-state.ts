@@ -14,6 +14,7 @@ export function getFactoryState() {
     homeLayout: SITE_RECIPE.homepageTemplate || themePack.homeLayout,
     motionPack: SITE_RECIPE.motionPack || themePack.motionPack,
     primaryTask: SITE_RECIPE.primaryTask,
+    secondaryTask: SITE_RECIPE.secondaryTask,
     enabledTasks: SITE_RECIPE.enabledTasks,
     taskLayouts: {
       ...themePack.defaultTaskTemplates,

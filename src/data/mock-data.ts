@@ -754,28 +754,28 @@ export const mockDashboardStats: DashboardStats = {
 export const mockTeamMembers: TeamMember[] = [
   {
     id: 'team-1',
-    name: 'Avery Brooks',
-    role: 'Head of Community',
+    name: 'Morgan Tate',
+    role: 'Director of Photography',
     avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=200&h=200&fit=crop',
-    bio: 'Building programs that connect creators with meaningful collaborations.',
-    location: 'Austin, TX'
+    bio: 'Former AFL boundary shooter; now sets visual standards for galleries and colour on grass.',
+    location: 'Melbourne, VIC',
   },
   {
     id: 'team-2',
-    name: 'Jordan Lee',
-    role: 'Product Lead',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
-    bio: 'Designing calm, curated experiences for modern teams.',
-    location: 'San Francisco, CA'
+    name: 'Aisha Okonkwo',
+    role: 'Editor-in-Chief',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop',
+    bio: 'Commissioning long reads on training culture, fan communities, and ethics on the sideline.',
+    location: 'Sydney, NSW',
   },
   {
     id: 'team-3',
-    name: 'Priya Desai',
-    role: 'Engineering',
-    avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=200&h=200&fit=crop',
-    bio: 'Focused on reliability, search, and delightful performance.',
-    location: 'New York, NY'
-  }
+    name: 'Liam Porter',
+    role: 'Product & publishing',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
+    bio: 'Ships the tools that let contributors upload frames and file copy without fighting the CMS.',
+    location: 'Brisbane, QLD',
+  },
 ]
 
 export const mockCommunityEvents: CommunityEvent[] = [

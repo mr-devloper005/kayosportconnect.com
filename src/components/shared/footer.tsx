@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { FileText, Building2, LayoutGrid, Tag, Github, Twitter, Linkedin, Image as ImageIcon, User, ArrowRight, Sparkles } from 'lucide-react'
+import { FileText, Building2, LayoutGrid, Tag, Image as ImageIcon, User, ArrowRight, Sparkles } from 'lucide-react'
 import { SITE_CONFIG, type TaskKey } from '@/lib/site-config'
 import { siteContent } from '@/config/site.content'
+import { siteIdentity } from '@/config/site.identity'
 import { getFactoryState } from '@/design/factory/get-factory-state'
 import { FOOTER_OVERRIDE_ENABLED, FooterOverride } from '@/overrides/footer'
 
@@ -24,17 +25,10 @@ const footerLinks = {
     href: task.route,
     icon: taskIcons[task.key] || LayoutGrid,
   })),
-  company: [
-    { name: 'About', href: '/about' },
-    { name: 'Team', href: '/team' },
-    { name: 'Careers', href: '/careers' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Press', href: '/press' },
-  ],
+  company: [{ name: 'About', href: '/about' }],
   resources: [
     { name: 'Help Center', href: '/help' },
     { name: 'Community', href: '/community' },
-    { name: 'Developers', href: '/developers' },
     { name: 'Status', href: '/status' },
   ],
   legal: [
@@ -45,20 +39,16 @@ const footerLinks = {
   ],
 }
 
-const socialLinks = [
-  { name: 'Twitter', href: 'https://twitter.com', icon: Twitter },
-  { name: 'GitHub', href: 'https://github.com', icon: Github },
-  { name: 'LinkedIn', href: 'https://linkedin.com', icon: Linkedin },
-]
-
 export function Footer() {
   if (FOOTER_OVERRIDE_ENABLED) {
     return <FooterOverride />
   }
 
   const { recipe } = getFactoryState()
+  const galleryCream = recipe.brandPack === 'gallery-cream'
   const enabledTasks = SITE_CONFIG.tasks.filter((task) => task.enabled)
   const primaryTask = enabledTasks.find((task) => task.key === recipe.primaryTask) || enabledTasks[0]
+  const secondaryTask = recipe.secondaryTask ? enabledTasks.find((task) => task.key === recipe.secondaryTask) : null
 
   if (recipe.footer === 'minimal-footer') {
     return (
@@ -81,6 +71,58 @@ export function Footer() {
   }
 
   if (recipe.footer === 'dense-footer') {
+    if (galleryCream) {
+      return (
+        <footer className="border-t border-[rgb(53_88_114/0.1)] bg-[linear-gradient(180deg,rgb(252_253_251)_0%,rgb(247_248_240)_100%)] text-[#355872]">
+          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+            <div className="grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-start">
+              <div className="rounded-2xl border border-[rgb(53_88_114/0.1)] bg-white p-8 shadow-[0_20px_50px_rgb(53_88_114/0.06)]">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[rgb(53_88_114/0.1)] bg-[rgb(247_248_240)] p-1.5">
+                    <img src={siteIdentity.brandMark} alt={`${SITE_CONFIG.name} logo`} width="48" height="48" className="h-full w-full object-contain" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-semibold">{SITE_CONFIG.name}</p>
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-[rgb(53_88_114/0.55)]">{siteContent.footer.tagline}</p>
+                  </div>
+                </div>
+                <p className="mt-5 max-w-md text-sm leading-7 text-[rgb(53_88_114/0.78)]">{SITE_CONFIG.description}</p>
+              </div>
+              <div className="grid gap-8 sm:grid-cols-2">
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-[rgb(53_88_114/0.5)]">Company</h3>
+                  <ul className="mt-4 space-y-3 text-sm text-[rgb(53_88_114/0.88)]">
+                    {footerLinks.company.map((item) => (
+                      <li key={item.name}>
+                        <Link href={item.href} className="transition hover:text-[#355872]">
+                          {item.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-[rgb(53_88_114/0.5)]">Resources</h3>
+                  <ul className="mt-4 space-y-3 text-sm text-[rgb(53_88_114/0.88)]">
+                    {footerLinks.resources.map((item) => (
+                      <li key={item.name}>
+                        <Link href={item.href} className="transition hover:text-[#355872]">
+                          {item.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div className="mt-10 border-t border-[rgb(53_88_114/0.1)] pt-5 text-sm text-[rgb(53_88_114/0.55)]">
+              &copy; {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.
+            </div>
+          </div>
+        </footer>
+      )
+    }
+
     return (
       <footer className="border-t border-white/10 bg-[linear-gradient(180deg,#07111f_0%,#0b1a2e_100%)] text-white">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
@@ -88,7 +130,7 @@ export function Footer() {
             <div className="rounded-[2rem] border border-white/10 bg-white/5 p-7">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/12 bg-white/8 p-1.5">
-                  <img src="/favicon.png?v=20260401" alt={`${SITE_CONFIG.name} logo`} width="48" height="48" className="h-full w-full object-contain" />
+                  <img src={siteIdentity.brandMark} alt={`${SITE_CONFIG.name} logo`} width="48" height="48" className="h-full w-full object-contain" />
                 </div>
                 <div>
                   <p className="text-lg font-semibold">{SITE_CONFIG.name}</p>
@@ -103,7 +145,7 @@ export function Footer() {
                 </Link>
               ) : null}
             </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-2">
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Surfaces</h3>
                 <ul className="mt-4 space-y-3 text-sm text-slate-200">
@@ -119,16 +161,6 @@ export function Footer() {
                     <li key={item.name}><Link href={item.href} className="hover:text-white">{item.name}</Link></li>
                   ))}
                 </ul>
-              </div>
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Connect</h3>
-                <div className="mt-4 flex gap-3">
-                  {socialLinks.map((item) => (
-                    <Link key={item.name} href={item.href} target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/10 bg-white/8 p-2.5 text-slate-200 hover:bg-white/12 hover:text-white">
-                      <item.icon className="h-4 w-4" />
-                    </Link>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
@@ -180,7 +212,7 @@ export function Footer() {
           <div>
             <Link href="/" className="flex items-center gap-3">
               <div className="h-11 w-11 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
-                <img src="/favicon.png?v=20260401" alt={`${SITE_CONFIG.name} logo`} width="44" height="44" className="h-full w-full object-contain" />
+                <img src={siteIdentity.brandMark} alt={`${SITE_CONFIG.name} logo`} width="44" height="44" className="h-full w-full object-contain" />
               </div>
               <div>
                 <span className="block text-lg font-semibold">{SITE_CONFIG.name}</span>

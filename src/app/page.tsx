@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, Bookmark, Building2, Compass, FileText, Globe2, Image as ImageIcon, LayoutGrid, MapPin, ShieldCheck, Tag, User } from 'lucide-react'
+import { ArrowRight, Bookmark, Building2, Compass, FileText, Globe2, Image as ImageIcon, LayoutGrid, MapPin, Quote, ShieldCheck, Tag, User } from 'lucide-react'
 import { ContentImage } from '@/components/shared/content-image'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
@@ -8,12 +8,15 @@ import { SchemaJsonLd } from '@/components/seo/schema-jsonld'
 import { TaskPostCard } from '@/components/shared/task-post-card'
 import { SITE_CONFIG, type TaskKey } from '@/lib/site-config'
 import { buildPageMetadata } from '@/lib/seo'
+import { getMockPostsForTask } from '@/lib/mock-posts'
 import { fetchTaskPosts } from '@/lib/task-data'
 import { siteContent } from '@/config/site.content'
+import { cn } from '@/lib/utils'
 import { getFactoryState } from '@/design/factory/get-factory-state'
 import { getProductKind, type ProductKind } from '@/design/factory/get-product-kind'
 import type { SitePost } from '@/lib/site-connector'
 import { HOME_PAGE_OVERRIDE_ENABLED, HomePageOverride } from '@/overrides/home-page'
+import { defaultAuthorProfile } from '@/config/site.identity'
 
 export const revalidate = 300
 
@@ -39,11 +42,40 @@ const taskIcons: Record<TaskKey, any> = {
   classified: Tag,
   image: ImageIcon,
   profile: User,
+  social: Globe2,
+  pdf: FileText,
+  org: Building2,
+  comment: FileText,
 }
 
 function resolveTaskKey(value: unknown, fallback: TaskKey): TaskKey {
-  if (value === 'listing' || value === 'classified' || value === 'article' || value === 'image' || value === 'profile' || value === 'sbm') return value
+  if (
+    value === 'listing' ||
+    value === 'classified' ||
+    value === 'article' ||
+    value === 'image' ||
+    value === 'profile' ||
+    value === 'sbm' ||
+    value === 'pdf' ||
+    value === 'social' ||
+    value === 'org' ||
+    value === 'comment'
+  )
+    return value
   return fallback
+}
+
+function postTaskKey(post: SitePost): unknown {
+  return (post as SitePost & { task?: unknown }).task
+}
+
+function deskArticleExcerpt(post: SitePost) {
+  const raw = (post.summary || '').trim()
+  if (raw) return raw
+  const content = post.content && typeof post.content === 'object' ? (post.content as Record<string, unknown>) : {}
+  const desc = typeof content.description === 'string' ? content.description.trim() : ''
+  if (desc) return desc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+  return 'Field notes from the Kayo Sport Connect desk—open the story for the full read.'
 }
 
 function getTaskHref(task: TaskKey, slug: string) {
@@ -114,14 +146,15 @@ function getEditorialTone() {
 
 function getVisualTone() {
   return {
-    shell: 'bg-[#07101f] text-white',
-    panel: 'border border-white/10 bg-[rgba(11,18,31,0.78)] shadow-[0_28px_80px_rgba(0,0,0,0.35)]',
-    soft: 'border border-white/10 bg-white/6',
-    muted: 'text-slate-300',
-    title: 'text-white',
-    badge: 'bg-[#8df0c8] text-[#07111f]',
-    action: 'bg-[#8df0c8] text-[#07111f] hover:bg-[#77dfb8]',
-    actionAlt: 'border border-white/10 bg-white/6 text-white hover:bg-white/10',
+    shell: 'bg-[#f7f8f0] text-[#355872]',
+    panel: 'border border-[rgb(53_88_114/0.12)] bg-white shadow-[0_22px_60px_rgb(53_88_114/0.08)]',
+    soft: 'border border-[rgb(53_88_114/0.1)] bg-[rgb(255_255_255/0.65)]',
+    muted: 'text-[rgb(53_88_114/0.72)]',
+    title: 'text-[#355872]',
+    badge: 'border border-[rgb(53_88_114/0.14)] bg-[rgb(156_213_255/0.35)] text-[#355872]',
+    action: 'bg-[#355872] text-white hover:bg-[rgb(45_72_94)]',
+    actionAlt: 'border border-[rgb(53_88_114/0.2)] bg-white text-[#355872] hover:bg-[rgb(122_170_206/0.12)]',
+    wash: 'bg-[linear-gradient(135deg,rgb(156_213_255/0.35)_0%,transparent_55%)]',
   }
 }
 
@@ -247,14 +280,14 @@ function DirectoryHome({ primaryTask, enabledTasks, listingPosts, classifiedPost
           <div className="grid gap-4 md:grid-cols-2">
             {(profilePosts.length ? profilePosts : classifiedPosts).slice(0, 4).map((post) => {
               const meta = getPostMeta(post)
-              const taskKey = resolveTaskKey(post.task, profilePosts.length ? 'profile' : 'classified')
+              const taskKey = resolveTaskKey(postTaskKey(post), profilePosts.length ? 'profile' : 'classified')
               return (
                 <Link key={post.id} href={getTaskHref(taskKey, post.slug)} className={`overflow-hidden rounded-[1.8rem] ${tone.panel}`}>
                   <div className="relative h-44 overflow-hidden">
                     <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
                   </div>
                   <div className="p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] opacity-70">{meta.category || post.task || 'Profile'}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] opacity-70">{meta.category || String(postTaskKey(post) || 'Profile')}</p>
                     <h3 className="mt-2 text-xl font-semibold">{post.title}</h3>
                     <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Quick access to local information and related surfaces.'}</p>
                   </div>
@@ -343,68 +376,191 @@ function EditorialHome({ primaryTask, articlePosts, supportTasks }: { primaryTas
   )
 }
 
-function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts }: { primaryTask?: EnabledTask; imagePosts: SitePost[]; profilePosts: SitePost[]; articlePosts: SitePost[] }) {
+function VisualHome({ primaryTask, imagePosts: _imagePosts, profilePosts, articlePosts }: { primaryTask?: EnabledTask; imagePosts: SitePost[]; profilePosts: SitePost[]; articlePosts: SitePost[] }) {
   const tone = getVisualTone()
-  const gallery = imagePosts.length ? imagePosts.slice(0, 5) : articlePosts.slice(0, 5)
-  const creators = profilePosts.slice(0, 3)
+  const articles = articlePosts.slice(0, 4)
+  const articleTask = SITE_CONFIG.tasks.find((t) => t.key === 'article' && t.enabled)
+  const deskArticles = articlePosts.length > 0 ? articlePosts.slice(0, 3) : getMockPostsForTask('article').slice(0, 3)
 
   return (
     <main className={tone.shell}>
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
-        <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-          <div>
-            <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${tone.badge}`}>
-              <ImageIcon className="h-3.5 w-3.5" />
-              Visual publishing system
-            </span>
-            <h1 className={`mt-6 max-w-4xl text-5xl font-semibold tracking-[-0.06em] sm:text-6xl ${tone.title}`}>
-              Image-led discovery with creator profiles and a more gallery-like browsing rhythm.
-            </h1>
-            <p className={`mt-6 max-w-2xl text-base leading-8 ${tone.muted}`}>{SITE_CONFIG.description}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href={primaryTask?.route || '/images'} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.action}`}>
-                Open gallery
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/profile" className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.actionAlt}`}>
-                Meet creators
-              </Link>
+      <section className="relative overflow-hidden border-b border-[rgb(53_88_114/0.08)]">
+        <div className={`pointer-events-none absolute inset-0 ${tone.wash}`} aria-hidden />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.35] mix-blend-multiply"
+          style={{
+            backgroundImage: `radial-gradient(circle at 18% 22%, rgb(156 213 255 / 0.22) 0%, transparent 42%),
+              radial-gradient(circle at 88% 12%, rgb(122 170 206 / 0.18) 0%, transparent 38%),
+              radial-gradient(circle at 72% 78%, rgb(53 88 114 / 0.06) 0%, transparent 45%)`,
+          }}
+          aria-hidden
+        />
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-[min(42%,28rem)] border-r border-[rgb(53_88_114/0.06)] opacity-60 max-lg:hidden" aria-hidden />
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
+          <div
+            className={cn(
+              'grid grid-cols-1 items-stretch gap-12 lg:gap-12 xl:gap-14',
+              articleTask ? 'lg:grid-cols-2 lg:items-center' : '',
+            )}
+          >
+            <div className="relative order-1 flex flex-col justify-center lg:py-2 xl:py-4">
+              <div
+                className="absolute -left-4 top-6 hidden h-[calc(100%-3rem)] w-px bg-[linear-gradient(180deg,#7aaace_0%,rgb(156_213_255/0.35)_45%,transparent_100%)] sm:block lg:-left-2"
+                aria-hidden
+              />
+              <div className="relative rounded-2xl border border-[rgb(53_88_114/0.08)] bg-[linear-gradient(165deg,rgb(255_255_255/0.97)_0%,rgb(252_253_251/0.88)_55%,rgb(247_248_240/0.92)_100%)] p-8 shadow-[0_24px_60px_-24px_rgb(53_88_114/0.18)] sm:p-10 lg:rounded-3xl lg:p-11">
+                <p className="inline-flex items-center gap-2 font-sans text-[10px] font-bold uppercase tracking-[0.32em] text-[rgb(53_88_114/0.5)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#7aaace]" aria-hidden />
+                  {SITE_CONFIG.name}
+                </p>
+                <h1 className="mt-6 font-display text-[2.1rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[#355872] sm:text-[2.55rem] lg:text-[2.85rem]">
+                  <span className="block bg-[linear-gradient(120deg,#355872_0%,#4a6d8a_40%,#355872_100%)] bg-clip-text text-transparent">
+                    Frames that carry weight.
+                  </span>
+                  <span className="mt-3 block text-[1.35rem] font-medium leading-snug tracking-[-0.03em] text-[rgb(53_88_114/0.88)] sm:text-[1.55rem] lg:text-[1.65rem]">
+                    Stories that carry context.
+                  </span>
+                </h1>
+                <p className={`mt-7 max-w-[26rem] border-t border-[rgb(53_88_114/0.08)] pt-7 font-sans text-[0.95rem] leading-[1.75] sm:text-base ${tone.muted}`}>
+                  {SITE_CONFIG.description}
+                </p>
+                <div className="mt-9 flex flex-wrap items-center gap-3 sm:gap-4">
+                  <Link
+                    href={primaryTask?.route || '/images'}
+                    className={`inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold tracking-wide shadow-[0_12px_32px_-8px_rgb(53_88_114/0.35)] transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-8px_rgb(53_88_114/0.4)] ${tone.action}`}
+                  >
+                    Browse images
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  {articleTask ? (
+                    <Link
+                      href={articleTask.route}
+                      className={`inline-flex items-center gap-2 rounded-full border border-[rgb(53_88_114/0.16)] bg-white/90 px-7 py-3.5 text-sm font-semibold shadow-sm backdrop-blur-sm transition hover:border-[rgb(122_170_206/0.45)] hover:bg-white ${tone.actionAlt}`}
+                    >
+                      Read articles
+                    </Link>
+                  ) : null}
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            {gallery.slice(0, 5).map((post, index) => (
-              <Link
-                key={post.id}
-                href={getTaskHref(resolveTaskKey(post.task, 'image'), post.slug)}
-                className={index === 0 ? `col-span-2 row-span-2 overflow-hidden rounded-[2.4rem] ${tone.panel}` : `overflow-hidden rounded-[1.8rem] ${tone.soft}`}
-              >
-                <div className={index === 0 ? 'relative h-[360px]' : 'relative h-[170px]'}>
-                  <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className={`rounded-[2rem] p-7 ${tone.panel}`}>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Visual notes</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Larger media surfaces, fewer boxes, stronger pacing.</h2>
-            <p className={`mt-4 max-w-2xl text-sm leading-8 ${tone.muted}`}>This product avoids business-directory density and publication framing. The homepage behaves more like a visual board, with profile surfaces and imagery leading the experience.</p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {creators.map((post) => (
-              <Link key={post.id} href={`/profile/${post.slug}`} className={`rounded-[1.8rem] p-5 ${tone.soft}`}>
-                <div className="relative h-40 overflow-hidden rounded-[1.2rem]">
-                  <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
+            {articleTask ? (
+              <aside className="relative order-2 flex w-full flex-col rounded-[1.65rem] border border-[rgb(53_88_114/0.09)] bg-[linear-gradient(165deg,rgb(255_255_255/0.98)_0%,rgb(247_248_240/0.95)_42%,rgb(236_244_252/0.9)_100%)] p-6 shadow-[0_28px_64px_-36px_rgb(53_88_114/0.38)] ring-1 ring-[rgb(255_255_255/0.65)] backdrop-blur-md sm:rounded-[1.85rem] sm:p-8 lg:max-w-none lg:self-stretch">
+                <div className="absolute -right-4 top-8 hidden h-32 w-32 rounded-full bg-[rgb(156_213_255/0.22)] blur-3xl lg:block" aria-hidden />
+                <div className="relative flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                  <div className="min-w-0">
+                    <p className="font-sans text-[10px] font-bold uppercase tracking-[0.32em] text-[rgb(53_88_114/0.4)]">Reader&apos;s desk</p>
+                    <p className="mt-2 font-display text-2xl font-semibold leading-[1.12] tracking-[-0.03em] text-[#355872] sm:text-[1.65rem]">
+                      Latest reads &amp; pull quotes
+                    </p>
+                    <p className="mt-3 max-w-md font-sans text-[12px] leading-relaxed text-[rgb(53_88_114/0.55)]">
+                      Straight from your CMS—edit an article and it shows here after the site refreshes (about every few minutes).
+                    </p>
+                  </div>
+                  <div className="mt-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[rgb(122_170_206/0.16)] text-[#5a8ab8] ring-1 ring-[rgb(122_170_206/0.28)] sm:mt-0">
+                    <Quote className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+                  </div>
                 </div>
-                <h3 className="mt-4 text-lg font-semibold">{post.title}</h3>
-                <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Creator profile and visual identity surface.'}</p>
-              </Link>
-            ))}
+                <ul className="relative mt-8 flex flex-col gap-4">
+                  {deskArticles.map((post) => {
+                    const byline = (post.authorName || defaultAuthorProfile.name || 'Editorial').trim()
+                    const excerpt = deskArticleExcerpt(post)
+                    const clip = excerpt.length > 118 ? `${excerpt.slice(0, 115).trimEnd()}…` : excerpt
+                    return (
+                      <li key={post.id}>
+                        <Link
+                          href={`/articles/${post.slug}`}
+                          className="group relative flex gap-4 overflow-hidden rounded-2xl border border-[rgb(53_88_114/0.08)] bg-white/85 p-4 pl-5 shadow-[0_10px_28px_-18px_rgb(53_88_114/0.22)] transition duration-200 hover:border-[rgb(122_170_206/0.45)] hover:bg-white hover:shadow-[0_16px_36px_-20px_rgb(53_88_114/0.28)]"
+                        >
+                          <span
+                            className="absolute left-0 top-4 bottom-4 w-1 rounded-full bg-[linear-gradient(180deg,#355872_0%,#7aaace_55%,#9cd5ff_100%)] opacity-80 transition group-hover:opacity-100"
+                            aria-hidden
+                          />
+                          <div className="relative ml-0.5 h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-xl bg-[rgb(122_170_206/0.1)] ring-1 ring-[rgb(53_88_114/0.06)] sm:h-[5.25rem] sm:w-[5.25rem]">
+                            <ContentImage src={getPostImage(post)} alt="" fill className="object-cover transition duration-300 group-hover:scale-105" sizes="(max-width:768px)72px,84px" />
+                          </div>
+                          <div className="min-w-0 flex-1 py-0.5">
+                            <p className="font-display text-[14px] font-medium italic leading-snug text-[rgb(53_88_114/0.82)] sm:text-[15px]">&ldquo;{clip}&rdquo;</p>
+                            <p className="mt-2.5 line-clamp-2 text-xs font-semibold uppercase tracking-[0.07em] text-[#355872]">{post.title}</p>
+                            <p className="mt-1.5 text-[11px] font-medium text-[rgb(53_88_114/0.44)]">{byline}</p>
+                          </div>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+                <Link
+                  href={articleTask.route}
+                  className="relative mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[rgb(53_88_114/0.12)] bg-[#355872] px-5 py-3.5 font-sans text-[11px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_12px_28px_-12px_rgb(53_88_114/0.45)] transition hover:bg-[#2d4a63] sm:w-auto sm:self-start"
+                >
+                  All articles
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </aside>
+            ) : null}
           </div>
         </div>
       </section>
+
+      {articles.length ? (
+        <section className="border-b border-[rgb(53_88_114/0.08)] bg-white">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+            <div className="flex flex-col justify-between gap-6 border-b border-[rgb(53_88_114/0.1)] pb-8 md:flex-row md:items-end">
+              <div>
+                <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.32em] text-[rgb(53_88_114/0.5)]">Articles</p>
+                <h2 className="mt-3 max-w-xl text-3xl font-semibold tracking-[-0.03em] text-[#355872] sm:text-4xl">Writing with room to breathe.</h2>
+              </div>
+              {articleTask ? (
+                <Link href={articleTask.route} className={`inline-flex w-fit items-center gap-2 rounded-md px-5 py-2.5 font-sans text-sm font-semibold ${tone.actionAlt}`}>
+                  View all
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              ) : null}
+            </div>
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              {articles.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/articles/${post.slug}`}
+                  className={cn(
+                    'group grid gap-5 rounded-2xl border border-[rgb(53_88_114/0.1)] bg-[#f7f8f0] p-5 transition sm:grid-cols-[minmax(0,0.42fr)_1fr] sm:p-6',
+                    'hover:border-[rgb(122_170_206/0.45)] hover:shadow-[0_16px_40px_rgb(53_88_114/0.07)]',
+                  )}
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[rgb(122_170_206/0.15)]">
+                    <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-[1.02]" />
+                  </div>
+                  <div className="flex min-w-0 flex-col justify-center">
+                    <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.28em] text-[rgb(53_88_114/0.45)]">Essay</p>
+                    <h3 className="mt-2 text-xl font-semibold leading-snug tracking-[-0.02em] text-[#355872] sm:text-2xl">{post.title}</h3>
+                    <p className={`mt-3 line-clamp-3 font-sans text-sm leading-relaxed ${tone.muted}`}>{post.summary || 'A slower read with editorial spacing and clear hierarchy.'}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {profilePosts.length ? (
+        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+          <div className={`rounded-2xl p-8 sm:p-10 ${tone.panel}`}>
+            <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.28em] text-[rgb(53_88_114/0.5)]">Profiles</p>
+            <h2 className="mt-3 max-w-2xl text-2xl font-semibold tracking-[-0.03em] text-[#355872] sm:text-3xl">People behind the lens.</h2>
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+              {profilePosts.slice(0, 3).map((post) => (
+                <Link key={post.id} href={`/profile/${post.slug}`} className={`rounded-xl border border-[rgb(53_88_114/0.08)] bg-[rgb(247_248_240/0.8)] p-4 transition hover:border-[rgb(122_170_206/0.4)]`}>
+                  <div className="relative h-36 overflow-hidden rounded-lg">
+                    <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-[#355872]">{post.title}</h3>
+                  <p className={`mt-2 line-clamp-2 font-sans text-sm ${tone.muted}`}>{post.summary || 'Public profile and portfolio surface.'}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
     </main>
   )
 }
@@ -440,7 +596,7 @@ function CurationHome({ primaryTask, bookmarkPosts, profilePosts, articlePosts }
 
           <div className="grid gap-4 md:grid-cols-2">
             {collections.map((post) => (
-              <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'sbm'), post.slug)} className={`rounded-[1.8rem] p-6 ${tone.panel}`}>
+              <Link key={post.id} href={getTaskHref(resolveTaskKey(postTaskKey(post), 'sbm'), post.slug)} className={`rounded-[1.8rem] p-6 ${tone.panel}`}>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Collection</p>
                 <h3 className="mt-3 text-2xl font-semibold">{post.title}</h3>
                 <p className={`mt-3 text-sm leading-8 ${tone.muted}`}>{post.summary || 'A calmer bookmark surface with room for context and grouping.'}</p>

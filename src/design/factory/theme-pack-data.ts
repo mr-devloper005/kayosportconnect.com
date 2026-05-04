@@ -83,7 +83,7 @@ export const THEME_PACKS: Record<ThemePackDefinition['key'], ThemePackDefinition
     key: 'visual-portfolio',
     label: 'Visual Portfolio',
     productFamily: 'visual',
-    brandPack: 'studio-dark',
+    brandPack: 'gallery-cream',
     navbar: 'floating-bar',
     footer: 'dense-footer',
     homeLayout: 'image-profile-home',
