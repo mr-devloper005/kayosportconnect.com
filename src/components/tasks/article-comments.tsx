@@ -250,92 +250,87 @@ export function ArticleComments({ slug }: { slug: string }) {
         Comments
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-6 rounded-2xl border border-border bg-white p-5 shadow-sm">
-        <div className="space-y-2">
-          <label htmlFor="comment-body" className="text-sm font-medium text-foreground">
-            Add a comment
-          </label>
-          <Textarea
-            id="comment-body"
-            value={commentBody}
-            onChange={(event) => setCommentBody(event.target.value)}
-            placeholder="Write your comment here"
-            className="min-h-28"
-            maxLength={2000}
-            disabled={limitReached}
-          />
-        </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="space-y-1">
-            <div
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                limitReached
-                  ? "bg-destructive/10 text-destructive"
-                  : remainingToday <= 3
-                    ? "bg-amber-100 text-amber-700"
-                    : "bg-primary/10 text-primary"
-              }`}
-            >
-              {limitReached
-                ? `Daily limit reached: ${DAILY_COMMENT_LIMIT}/${DAILY_COMMENT_LIMIT}`
-                : `${remainingToday} of ${DAILY_COMMENT_LIMIT} comments left today`}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {limitReached
-                ? `You can publish again after ${resetLabel}.`
-                : `Limit resets after ${resetLabel}.`}
-            </p>
+      <form onSubmit={handleSubmit} className="mt-8 rounded-3xl border border-border bg-card p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+            {getLocalAuthorName().charAt(0).toUpperCase()}
           </div>
-          <Button type="submit" disabled={limitReached}>
-            Publish Comment
-          </Button>
+          <div>
+            <p className="text-sm font-semibold text-foreground">{getLocalAuthorName()}</p>
+            <p className="text-xs text-muted-foreground">Posting publicly</p>
+          </div>
         </div>
-        {formError ? <p className="mt-3 text-sm text-destructive">{formError}</p> : null}
+        <Textarea
+          id="comment-body"
+          value={commentBody}
+          onChange={(event) => setCommentBody(event.target.value)}
+          placeholder="Share your thoughts..."
+          className="min-h-24 resize-none border-0 bg-transparent text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
+          maxLength={2000}
+          disabled={limitReached}
+        />
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+          <p className="text-xs text-muted-foreground">
+            {limitReached
+              ? `Daily limit reached. Resets ${resetLabel}.`
+              : `${remainingToday} remaining today`}
+          </p>
+          <div className="flex items-center gap-3">
+            {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
+            <Button type="submit" disabled={limitReached || !commentBody.trim()} size="sm" className="rounded-full px-6">
+              Post
+            </Button>
+          </div>
+        </div>
       </form>
 
       {mergedComments.length ? (
-        <div className="mt-6 space-y-4">
+        <div className="mt-8 divide-y divide-border">
           {visibleComments.map((comment) => {
             const isHighlighted = highlightId === comment.id;
             return (
               <div
                 key={comment.id}
                 id={`comment-${comment.id}`}
-                className={`rounded-2xl border p-4 ${
-                  isHighlighted ? "border-primary/50 bg-primary/5" : "border-border bg-white"
+                className={`flex gap-4 p-4 ${
+                  isHighlighted ? "rounded-2xl bg-primary/5" : ""
                 }`}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{comment.authorName}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(comment.createdAt).toLocaleDateString()}
-                    </p>
-                    {comment.source === "local" ? (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteLocalComment(comment.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:border-destructive/30 hover:bg-destructive/5 hover:text-destructive"
-                        aria-label="Delete local comment"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    ) : null}
-                  </div>
+                <div className="h-9 w-9 shrink-0 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground">
+                  {comment.authorName.charAt(0).toUpperCase()}
                 </div>
-                <RichContent
-                  html={formatRichHtml(comment.body, "Comment added.")}
-                  className="mt-2 text-sm text-muted-foreground prose-sm prose-h2:text-xl prose-h3:text-lg"
-                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-foreground">{comment.authorName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(comment.createdAt).toLocaleDateString()}
+                      </p>
+                      {comment.source === "local" ? (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLocalComment(comment.id)}
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+                          aria-label="Delete comment"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                  <RichContent
+                    html={formatRichHtml(comment.body, "Comment added.")}
+                    className="mt-1 text-sm text-foreground prose-sm"
+                  />
+                </div>
               </div>
             );
           })}
         </div>
       ) : (
-        <div className="mt-6 rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-          No comments yet.
+        <div className="mt-8 py-12 text-center">
+          <MessageSquare className="mx-auto h-8 w-8 text-muted-foreground/40 mb-3" />
+          <p className="text-sm text-muted-foreground">No comments yet. Be the first to share your thoughts.</p>
         </div>
       )}
 
