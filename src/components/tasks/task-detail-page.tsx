@@ -267,72 +267,115 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
         >
           <div className={cn(isClassified ? "space-y-8" : "")}>
             {isArticle ? (
-              <div className="mx-auto w-full max-w-4xl space-y-6">
-                <h1 className="text-4xl font-semibold leading-tight text-foreground">
-                  {post.title}
-                </h1>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                  <span>By {articleAuthor}</span>
-                  {articleDate ? <span>{articleDate}</span> : null}
-                  <Badge variant="secondary" className="inline-flex items-center gap-1">
-                    <Tag className="h-3.5 w-3.5" />
-                    {category}
-                  </Badge>
-                </div>
-                {postTags.length ? (
-                  <div className="flex flex-wrap gap-2">
-                    {postTags.map((tag) => (
-                      <Badge key={tag} variant="outline">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : null}
-                {articleSummary ? (
-                  <p className="text-base leading-7 text-muted-foreground">{articleSummary}</p>
-                ) : null}
+              <div>
                 {images[0] ? (
-                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-border bg-muted">
+                  <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-10 aspect-[21/9] w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] overflow-hidden">
                     <ContentImage
                       src={images[0]}
                       alt={`${post.title} featured image`}
                       fill
                       className="object-cover"
-                      intrinsicWidth={1600}
+                      intrinsicWidth={2100}
                       intrinsicHeight={900}
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 lg:p-12">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/80 mb-3">
+                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30 inline-flex items-center gap-1">
+                          <Tag className="h-3.5 w-3.5" />
+                          {category}
+                        </Badge>
+                      </div>
+                      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white max-w-4xl">
+                        {post.title}
+                      </h1>
+                    </div>
                   </div>
-                ) : null}
-                <RichContent html={articleHtml} className="leading-8 prose-p:my-6 prose-h2:my-8 prose-h3:my-6 prose-ul:my-6" />
-                <ArticleComments slug={post.slug} />
+                ) : (
+                  <div className="mb-10">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mb-4">
+                      <Badge variant="secondary" className="inline-flex items-center gap-1">
+                        <Tag className="h-3.5 w-3.5" />
+                        {category}
+                      </Badge>
+                    </div>
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-foreground max-w-4xl">
+                      {post.title}
+                    </h1>
+                  </div>
+                )}
+
+                <div className="mx-auto max-w-4xl">
+                  <div className="flex items-center gap-4 py-6 border-y border-border mb-8">
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-lg font-bold text-primary">
+                      {articleAuthor.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">{articleAuthor}</p>
+                      <p className="text-sm text-muted-foreground">Author</p>
+                    </div>
+                  </div>
+
+                  {postTags.length ? (
+                    <div className="flex flex-wrap gap-2 mb-8">
+                      {postTags.map((tag) => (
+                        <Badge key={tag} variant="outline" className="rounded-full px-3 py-1 border-border hover:bg-muted cursor-pointer transition-colors">
+                          #{tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {articleSummary ? (
+                    <blockquote className="relative pl-6 mb-10 border-l-4 border-primary/40">
+                      <p className="text-xl sm:text-2xl italic leading-relaxed text-muted-foreground font-light">
+                        {articleSummary}
+                      </p>
+                    </blockquote>
+                  ) : null}
+
+                  <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-foreground prose-p:leading-8 prose-p:text-muted-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-img:rounded-xl">
+                    <RichContent html={articleHtml} className="leading-8 prose-p:my-6 prose-h2:my-8 prose-h3:my-6 prose-ul:my-6" />
+                  </div>
+                </div>
+
+                <div className="mt-16 mx-auto max-w-4xl">
+                  <div className="border-t border-border pt-12">
+                    <h2 className="text-2xl font-bold text-foreground mb-8">Discussion</h2>
+                    <ArticleComments slug={post.slug} />
+                  </div>
+                </div>
               </div>
             ) : null}
 
             {!isArticle ? (
-              <>
-                {!isBookmark ? (
-                  <div className={cn(isClassified ? "w-full" : "")}>
-                    <TaskImageCarousel images={images} />
+              <div className="space-y-6">
+                <div className="grid gap-10 lg:grid-cols-[1fr_1fr] items-start">
+                  <div className="space-y-6">
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                      <Badge variant="secondary" className="inline-flex items-center gap-1 bg-primary/10 border-primary/20">
+                        <Tag className="h-3.5 w-3.5" />
+                        {category}
+                      </Badge>
+                      {location && (
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          {location}
+                        </span>
+                      )}
+                    </div>
+                    <h1 className="text-4xl font-bold text-foreground">{post.title}</h1>
+                    {!isBookmark ? (
+                      <div className="rounded-3xl bg-gradient-to-br from-card to-muted/30 border border-border p-6">
+                        <TaskImageCarousel images={images} />
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
-
-                <div className={cn(isClassified ? "mx-auto w-full max-w-4xl" : "mt-6")}>
-                  <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                    <Badge variant="secondary" className="inline-flex items-center gap-1">
-                      <Tag className="h-3.5 w-3.5" />
-                      {category}
-                    </Badge>
-                    {location && (
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {location}
-                      </span>
-                    )}
+                  <div className="prose max-w-none prose-p:text-muted-foreground prose-p:leading-7">
+                    <RichContent html={descriptionHtml} className="max-w-3xl" />
                   </div>
-                  <h1 className="mt-4 text-3xl font-semibold text-foreground">{post.title}</h1>
-                  <RichContent html={descriptionHtml} className="mt-3 max-w-3xl" />
                 </div>
-              </>
+              </div>
             ) : null}
 
             {isClassified ? (
