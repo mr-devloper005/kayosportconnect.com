@@ -138,7 +138,9 @@ export function Navbar() {
               </div>
               <div className="min-w-0 hidden sm:block">
                 <span className="block truncate text-xl font-semibold">{SITE_CONFIG.name}</span>
-                <span className="block text-[10px] uppercase tracking-[0.24em] opacity-60">{siteContent.navbar.tagline}</span>
+                {siteContent.navbar.tagline ? (
+                  <span className="block text-[10px] uppercase tracking-[0.24em] opacity-60">{siteContent.navbar.tagline}</span>
+                ) : null}
               </div>
             </Link>
 
@@ -276,15 +278,17 @@ export function Navbar() {
                 >
                   {SITE_CONFIG.name}
                 </span>
-                <span className="mt-1.5 flex min-w-0 items-center gap-2 sm:mt-2">
-                  <span
-                    className="h-[3px] w-6 shrink-0 rounded-full bg-[linear-gradient(90deg,#355872_0%,#7aaace_55%,rgb(156_213_255/0.35)_100%)] sm:w-8"
-                    aria-hidden
-                  />
-                  <span className="min-w-0 truncate text-[10px] font-bold uppercase leading-snug tracking-[0.16em] text-[rgb(53_88_114/0.78)] sm:text-[11px] sm:tracking-[0.18em] md:text-[12px] md:tracking-[0.2em]">
-                    {siteContent.navbar.tagline}
+                {siteContent.navbar.tagline ? (
+                  <span className="mt-1.5 flex min-w-0 items-center gap-2 sm:mt-2">
+                    <span
+                      className="h-[3px] w-6 shrink-0 rounded-full bg-[linear-gradient(90deg,#355872_0%,#7aaace_55%,rgb(156_213_255/0.35)_100%)] sm:w-8"
+                      aria-hidden
+                    />
+                    <span className="min-w-0 truncate text-[10px] font-bold uppercase leading-snug tracking-[0.16em] text-[rgb(53_88_114/0.78)] sm:text-[11px] sm:tracking-[0.18em] md:text-[12px] md:tracking-[0.2em]">
+                      {siteContent.navbar.tagline}
+                    </span>
                   </span>
-                </span>
+                ) : null}
               </div>
             </Link>
           ) : (
@@ -294,7 +298,9 @@ export function Navbar() {
               </div>
               <div className="min-w-0 hidden sm:block">
                 <span className="block truncate text-xl font-semibold">{SITE_CONFIG.name}</span>
-                <span className="block text-[10px] uppercase tracking-[0.24em] opacity-60">{siteContent.navbar.tagline}</span>
+                {siteContent.navbar.tagline ? (
+                  <span className="block text-[10px] uppercase tracking-[0.24em] opacity-60">{siteContent.navbar.tagline}</span>
+                ) : null}
               </div>
             </Link>
           )}
@@ -320,41 +326,43 @@ export function Navbar() {
               className="mx-auto hidden min-w-0 flex-1 flex-col gap-1.5 md:mx-4 md:flex lg:mx-6 lg:max-w-[min(40rem,calc(100%-11rem)))]"
             >
               <input type="hidden" name="master" value="1" />
-              <p className="hidden pl-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-[rgb(53_88_114/0.42)] lg:block">Search images or articles</p>
               <div className="flex w-full flex-col gap-2 rounded-[1.35rem] border border-[rgb(53_88_114/0.1)] bg-[rgb(255_255_255/0.94)] p-1.5 pl-2 shadow-[inset_0_1px_0_rgb(255_255_255/1),0_12px_40px_-14px_rgb(53_88_114/0.2)] transition-[border-color,box-shadow] focus-within:border-[rgb(122_170_206/0.4)] focus-within:shadow-[inset_0_1px_0_rgb(255_255_255/1),0_16px_48px_-12px_rgb(53_88_114/0.24)] sm:flex-row sm:items-center sm:gap-1 sm:rounded-full sm:pl-2">
-                <fieldset className="flex shrink-0 flex-wrap items-center gap-1 border-0 p-0 sm:pl-1">
-                  <legend className="sr-only">Search in</legend>
+                <div className="flex shrink-0 flex-wrap items-center gap-1 sm:pl-1" aria-label="Browse content">
                   {(
                     [
-                      { value: '', label: 'All', Icon: LayoutGrid },
-                      { value: 'image', label: 'Images', Icon: ImageIcon },
-                      { value: 'article', label: 'Articles', Icon: FileText },
+                      { href: '/search', label: 'All', Icon: LayoutGrid },
+                      { href: '/image', label: 'Images', Icon: ImageIcon },
+                      { href: '/article', label: 'Articles', Icon: FileText },
                     ] as const
-                  ).map(({ value, label, Icon }) => (
-                    <label
-                      key={value || 'all'}
-                      className="relative cursor-pointer select-none rounded-full px-0.5 py-0.5 has-[input:checked]:bg-[rgb(53_88_114/0.06)]"
+                  ).map(({ href, label, Icon }) => {
+                    const isActive =
+                      href === '/image'
+                        ? pathname.startsWith('/image')
+                        : href === '/article'
+                          ? pathname.startsWith('/article')
+                          : pathname.startsWith('/search')
+
+                    return (
+                    <a
+                      key={href}
+                      href={href}
+                      className="relative select-none rounded-full px-0.5 py-0.5"
                     >
-                      <input
-                        type="radio"
-                        name="task"
-                        value={value}
-                        defaultChecked={
-                          value === 'image'
-                            ? navSearchDefaultTask === 'image'
-                            : value === 'article'
-                              ? navSearchDefaultTask === 'article'
-                              : navSearchDefaultTask !== 'image' && navSearchDefaultTask !== 'article'
-                        }
-                        className="peer sr-only"
-                      />
-                      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[rgb(53_88_114/0.55)] transition-colors peer-checked:bg-[#355872] peer-checked:text-white peer-checked:shadow-sm sm:px-3 sm:py-2 sm:text-[11px]">
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] transition-colors sm:px-3 sm:py-2 sm:text-[11px]",
+                          isActive
+                            ? "bg-[#355872] text-white shadow-sm"
+                            : "text-[rgb(53_88_114/0.55)] hover:bg-[rgb(53_88_114/0.06)] hover:text-[#355872]",
+                        )}
+                      >
                         <Icon className="h-3 w-3 opacity-80 sm:h-3.5 sm:w-3.5" strokeWidth={2.25} />
                         {label}
                       </span>
-                    </label>
-                  ))}
-                </fieldset>
+                    </a>
+                    )
+                  })}
+                </div>
                 <div className="mx-1 hidden h-7 w-px shrink-0 bg-[rgb(53_88_114/0.08)] sm:block" aria-hidden />
                 <label className="flex min-w-0 flex-1 cursor-text items-center gap-2 rounded-full bg-[rgb(247_248_240/0.5)] px-2.5 py-1 sm:bg-transparent sm:px-1 sm:py-0">
                   <span className="sr-only">Search query</span>
@@ -483,37 +491,43 @@ export function Navbar() {
                 className="space-y-3"
               >
                 <input type="hidden" name="master" value="1" />
-                <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-[rgb(53_88_114/0.45)]">Search images or articles</p>
-                <fieldset className="flex flex-wrap gap-1.5 border-0 p-0">
-                  <legend className="sr-only">Search in</legend>
+                <div className="flex flex-wrap gap-1.5" aria-label="Browse content">
                   {(
                     [
-                      { value: '', label: 'All', Icon: LayoutGrid },
-                      { value: 'image', label: 'Images', Icon: ImageIcon },
-                      { value: 'article', label: 'Articles', Icon: FileText },
+                      { href: '/search', label: 'All', Icon: LayoutGrid },
+                      { href: '/image', label: 'Images', Icon: ImageIcon },
+                      { href: '/article', label: 'Articles', Icon: FileText },
                     ] as const
-                  ).map(({ value, label, Icon }) => (
-                    <label key={value || 'all'} className="cursor-pointer select-none rounded-full px-0.5 py-0.5 has-[input:checked]:bg-[rgb(53_88_114/0.06)]">
-                      <input
-                        type="radio"
-                        name="task"
-                        value={value}
-                        defaultChecked={
-                          value === 'image'
-                            ? navSearchDefaultTask === 'image'
-                            : value === 'article'
-                              ? navSearchDefaultTask === 'article'
-                              : navSearchDefaultTask !== 'image' && navSearchDefaultTask !== 'article'
-                        }
-                        className="peer sr-only"
-                      />
-                      <span className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[rgb(53_88_114/0.55)] peer-checked:bg-[#355872] peer-checked:text-white peer-checked:shadow-sm">
+                  ).map(({ href, label, Icon }) => {
+                    const isActive =
+                      href === '/image'
+                        ? pathname.startsWith('/image')
+                        : href === '/article'
+                          ? pathname.startsWith('/article')
+                          : pathname.startsWith('/search')
+
+                    return (
+                    <a
+                      key={href}
+                      href={href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="select-none rounded-full px-0.5 py-0.5"
+                    >
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em]",
+                          isActive
+                            ? "bg-[#355872] text-white shadow-sm"
+                            : "text-[rgb(53_88_114/0.55)] hover:bg-[rgb(53_88_114/0.06)] hover:text-[#355872]",
+                        )}
+                      >
                         <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
                         {label}
                       </span>
-                    </label>
-                  ))}
-                </fieldset>
+                    </a>
+                    )
+                  })}
+                </div>
                 <div className="flex items-center gap-1 rounded-2xl border border-[rgb(53_88_114/0.1)] bg-white p-1.5 pl-3 shadow-[0_10px_32px_-12px_rgb(53_88_114/0.15)]">
                   <label className="flex min-w-0 flex-1 items-center gap-2">
                     <Search className="h-4 w-4 shrink-0 text-[rgb(53_88_114/0.35)]" />

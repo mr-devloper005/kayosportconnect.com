@@ -17,11 +17,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const { recipe, brandPack } = getFactoryState()
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body
         data-site-shell={recipe.homeLayout}
         data-motion-pack={recipe.motionPack}
         className={`${brandPack.bodyClassName} ${brandPack.fontClassName} ${brandPack.paletteClassName}`}
+        suppressHydrationWarning
       >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <AuthProvider>

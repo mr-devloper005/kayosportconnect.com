@@ -2,7 +2,7 @@ import type { TaskKey } from '@/lib/site-config'
 
 export const siteContent = {
   navbar: {
-    tagline: 'Sport photography & editorial',
+    tagline: '',
   },
   footer: {
     tagline: 'Galleries, essays, and match-day culture',

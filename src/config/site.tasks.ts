@@ -18,7 +18,7 @@ export const siteTaskDefinitions = [
   {
   key: 'article',
   label: 'Article',
-  route: '/article',
+  route: '/articles',
   description: 'Curated article content.',
   contentType: 'article',
   enabled: true,
@@ -26,7 +26,7 @@ export const siteTaskDefinitions = [
   {
   key: 'image',
   label: 'Image',
-  route: '/image',
+  route: '/images',
   description: 'Curated image content.',
   contentType: 'image',
   enabled: true,
@@ -76,8 +76,8 @@ export const siteTaskDefinitions = [
 export const siteTaskViews = {
   listing: '/listing',
   classified: '/classified',
-  article: '/article',
-  image: '/image',
+  article: '/articles',
+  image: '/images',
   profile: '/profile',
   social: '/community',
   sbm: '/sbm',

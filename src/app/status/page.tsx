@@ -9,8 +9,8 @@ const services = [
 ]
 
 const incidents = [
-  { date: 'Mar 12, 2026', title: 'Delayed notifications', status: 'Resolved' },
-  { date: 'Feb 22, 2026', title: 'Search indexing lag', status: 'Resolved' },
+  { title: 'Delayed notifications', status: 'Resolved' },
+  { title: 'Search indexing lag', status: 'Resolved' },
 ]
 
 export default function StatusPage() {
@@ -36,7 +36,6 @@ export default function StatusPage() {
             <div className="mt-4 space-y-3">
               {incidents.map((incident) => (
                 <div key={incident.title} className="rounded-lg border border-border bg-secondary/40 px-4 py-3">
-                  <div className="text-xs text-muted-foreground">{incident.date}</div>
                   <div className="text-sm font-medium text-foreground">{incident.title}</div>
                   <div className="text-xs text-muted-foreground">{incident.status}</div>
                 </div>
